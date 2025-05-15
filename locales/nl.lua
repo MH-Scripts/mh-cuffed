@@ -1,0 +1,17 @@
+local Translations = {
+    ['cuff'] = "Burger boeien",
+    ['uncuff'] = "Burger Losmaken",
+    ['start_escort'] = "Start Escort",
+    ['stop_escort'] = "Stop Escort",
+    ['rob_citezen'] = "Rob Citezen",
+    ['search_suspect'] = "Doorzoek verdachte",
+    ['search_vehicle'] = "Doorzoek Voertuig",
+    ['found_noting'] = "Je hebt niets gevonden!",
+    ['found_item'] = "Je hebt %{item} gevonden!",
+    ['set_in_vehicle'] = "Plaats in voertuig",
+    ['get_out_vehicle'] = "Haal uit voertuig",
+}
+
+if GetConvar('qb_locale', 'en') == 'nl' then
+    Lang = Locale:new({phrases = Translations, warnOnMissing = true, fallbackLang = Lang})
+end
