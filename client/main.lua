@@ -36,6 +36,16 @@ local function LoadDict(dict)
     end
 end
 
+local function HasItem(item, amount)
+    return exports['qb-inventory']:HasItem(config.RevieItem, 1)
+end
+
+local function GetDistance(pos1, pos2)
+    if pos1 ~= nil and pos2 ~= nil then
+        return #(vector3(pos1.x, pos1.y, pos1.z) - vector3(pos2.x, pos2.y, pos2.z))
+    end
+end
+
 local function SuspectExsist(entity)
     for key, suspect in pairs(cuffedSuspects) do
         if suspect.entity == entity then return true end
@@ -179,7 +189,9 @@ local function SearchSuspect(entity)
     isSearchingSuspect = true
     LoadDict("random@shop_robbery")
     local searchitem = nil
-    if math.random(1, 10) < 2 then searchitem = config.JailItems[math.random(1,#config.JailItems)] end
+    if math.random(1, 10) < 2 then searchitem = config.JailItems[math.random(1, #config.JailItems)] end
+    TaskTurnPedToFaceCoord(PlayerPedId(), GetEntityCoords(entity), 5000)
+    Wait(1000)
     StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
     TaskPlayAnim(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', 3.0, 3.0, -1, 16, 0, false, false, false)
     Wait(3500)
@@ -274,6 +286,16 @@ local function TakeEntityOutVehicle(vehicle)
     end
 end
 
+local function SetSuspectInJail(entity)
+    UnCuffEntity(entity)
+    DetachEntity(entity, true, false)
+    RemoveSuspect(entity)
+    Wait(10)
+    DeleteEntity(entity)
+    StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    suspectEntity = nil
+end
+
 local function LoadTarget()
     for k, v in pairs(config.Vehicles) do
         exports['qb-target']:AddTargetModel(v.model, {
@@ -298,6 +320,16 @@ local function LoadTarget()
                     canInteract = function(entity, distance, data)
                         return true
                     end
+                }, { -- Search Vehicle
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('search_vehicle'),
+                    action = function(entity)
+                        SearchVehicle(entity)
+                    end,
+                    canInteract = function(entity)
+                        if searchVehicles[entity] then return false end
+                        return true
+                    end,
                 },
             },
             distance = 3.0
@@ -317,7 +349,7 @@ local function LoadTarget()
                     canInteract = function(entity, distance, data)
                         if IsPedDeadOrDying(entity) then return false end
                         if IsSuspectCuffed(entity) then return false end
-                        if not exports['qb-inventory']:HasItem(config.HandcuffItem, 1) then return false end
+                        if not HasItem(config.HandcuffItem, 1) then return false end
                         if isHandCuffing then return false end
                         if isReviveNpc then return false end
                         return true
@@ -389,22 +421,7 @@ local function LoadTarget()
                         if isReviveNpc then return false end
                         return true
                     end,
-                },{ -- Search Vehicle
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('search_vehicle'),
-                    action = function(entity)
-                        SearchVehicle(entity)
-                    end,
-                    canInteract = function(entity)
-                        if searchVehicles[entity] then return false end
-                        if not IsSuspectCuffed(entity) then return false end
-                        if IsSuspectEscorting(entity) then return false end
-                        if isHandCuffing then return false end
-                        if isSearchingSuspect then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                },{ -- Revive Suspect
+                }, { -- Revive Suspect
                     icon = "fas fa-handcuffs",
                     label = Lang:t('revive_suspect'),
                     action = function(entity)
@@ -412,9 +429,24 @@ local function LoadTarget()
                     end,
                     canInteract = function(entity)
                         if not IsPedDeadOrDying(entity) then return false end
-                        if not exports['qb-inventory']:HasItem(config.RevieItem, 1) then return false end
+                        if not HasItem(config.RevieItem, 1) then return false end
                         if isHandCuffing then return false end
                         if isReviveNpc then return false end
+                        return true
+                    end,
+                }, { -- put in jail
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('put_in_jail'),
+                    action = function(entity)
+                        SetSuspectInJail(entity)
+                    end,
+                    canInteract = function(entity)
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not IsSuspectCuffed(entity) then return false end
+                        if not IsSuspectEscorting(entity) then return false end
+                        local coords = GetEntityCoords(PlayerPedId())
+                        local jail_distance = GetDistance(coords, config.JailCoords)
+                        if jail_distance > 1.5 then return false end
                         return true
                     end,
                 }

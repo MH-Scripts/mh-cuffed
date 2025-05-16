@@ -10,6 +10,7 @@ local Translations = {
     ['revive_suspect'] = "Revive Suspect",
     ['set_in_vehicle'] = "Set in vehicle",
     ['get_out_vehicle'] = "Get out vehicle",
+    ['put_in_jail'] = "Put suspect in jail",
 }
 
 if GetConvar('qb_locale', 'en') == 'en' then
