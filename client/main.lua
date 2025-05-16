@@ -220,6 +220,7 @@ local function SetSuspectInVehicle(entity, vehicle)
             suspect.isEscorting = false
             suspect.isInVehicle = true
             suspect.vehicle = vehicle
+            SyncData()
             break
         end
     end
@@ -231,14 +232,14 @@ local function TakeSuspectOutVehicle(entity, vehicle)
             suspect.isEscorting = true
             suspect.isInVehicle = false
             suspect.vehicle = nil
+            SyncData()
             break
         end
     end
 end
 
 local function PlaceEntityInVehicle(entity, vehicle)
-    local seats = GetVehicleModelNumberOfSeats(GetEntityModel(vehicle))
-    for i = 1, seats, 1 do
+    for i = 1, 7, 1 do
         if IsVehicleSeatFree(vehicle, i) then
             SetEntityAsMissionEntity(entity, true, true)
             SetEntityAsMissionEntity(vehicle, true, true)
@@ -249,27 +250,25 @@ local function PlaceEntityInVehicle(entity, vehicle)
             SetPedIntoVehicle(entity, vehicle, i)
             SetSuspectInVehicle(entity, vehicle)
             suspectEntity = nil
-            SyncData()
             break
         end
     end
 end
 
 local function TakeEntityOutVehicle(vehicle)
-    local seats = GetVehicleModelNumberOfSeats(GetEntityModel(vehicle))
-    for i = 0, seats, 1 do
+    for i = 0, 7, 1 do
         local seatFree = IsVehicleSeatFree(vehicle, i)
         local entity = GetPedInVehicleSeat(vehicle, i)
         if not seatFree and DoesEntityExist(entity) then
             SetEntityAsMissionEntity(entity, true, true)
             SetEntityAsMissionEntity(vehicle, true, true)
             TaskLeaveVehicle(entity, vehicle, 16)
+            suspectEntity = entity
             SetSuspectEscorting(entity, true)
             SetSuspectCuffed(entity, true)
             CuffEntity(entity)
             EscortEntity(entity)
             TakeSuspectOutVehicle(entity, vehicle)
-            suspectEntity = entity
             break
         end
     end
