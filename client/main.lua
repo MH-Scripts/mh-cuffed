@@ -10,7 +10,6 @@ local isSearchingVehicle = false
 local isReviveNpc = false
 local suspectEntity = nil -- current entity you are working with at the moment.
 
-
 local function Notify(message, type, length)
     if GetResourceState("ox_lib") ~= 'missing' then
         lib.notify({title = "MH Walk When Cuffed", description = message, type = type})
@@ -907,6 +906,7 @@ CreateThread(function()
                                 end
                             end
                             if suspect.isHostage then
+                                suspect.isCuffed = false
                                 if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
                                     TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
@@ -918,6 +918,7 @@ CreateThread(function()
                             end
 
                             if suspect.isSurender then
+                                suspect.isCuffed = false
                                 if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
                                     TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
