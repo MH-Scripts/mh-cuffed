@@ -25,9 +25,7 @@ elseif GetResourceState("qb-core") ~= 'missing' then
     function GetJob() return PlayerData.job end
     RegisterNetEvent('QBCore:Player:SetPlayerData', function(data) PlayerData = data end)
 end
-
-RegisterNetEvent(OnPlayerLoaded, function() TriggerServerEvent('mh-walkwhencuffed:server:onjoin') end)
-RegisterNetEvent(OnPlayerUnload, function() PlayerData = {} isLoggedIn = false end)
+----------------------------------------------------------------------------------------------------------
 
 local config = nil
 local hostageSuspects = {}
@@ -460,6 +458,9 @@ local function LoadTarget()
                             CuffEntity(entity)
                         end,
                         canInteract = function(entity, distance, data)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
                             if IsSuspectCuffed(entity) then return false end
                             if IsSuspectHostage(entity) then return false end
@@ -476,6 +477,9 @@ local function LoadTarget()
                             UnCuffEntity(entity)
                         end,
                         canInteract = function(entity, distance, data)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if IsSuspectEscorting(entity) then return false end
@@ -495,6 +499,9 @@ local function LoadTarget()
                             EscortEntity(entity)
                         end,
                         canInteract = function(entity, distance, data)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if IsSuspectEscorting(entity) then return false end
@@ -514,6 +521,9 @@ local function LoadTarget()
                             EscortEntity(entity)
                         end,
                         canInteract = function(entity, distance, data)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if not IsSuspectEscorting(entity) then return false end
@@ -530,8 +540,11 @@ local function LoadTarget()
                             SearchSuspect(entity)
                         end,
                         canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData.job.name == 'police' then return false end
+                            if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if IsSuspectEscorting(entity) then return false end
                             if IsSuspectHostage(entity) then return false end
@@ -547,8 +560,11 @@ local function LoadTarget()
                             ReviveNpc(entity)
                         end,
                         canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if not IsPedDeadOrDying(entity) then return false end
-                            if PlayerData.job.name ~= 'ambulance' then return false end
+                            if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
                             if not HasItem(config.RevieItem, 1) then return false end
                             if isHandCuffing then return false end
                             if isReviveNpc then return false end
@@ -561,8 +577,11 @@ local function LoadTarget()
                             SetSuspectInJail(entity)
                         end,
                         canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData.job.name ~= 'police' then return false end
+                            if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if not IsSuspectEscorting(entity) then return false end
                             if IsSuspectHostage(entity) then return false end
@@ -579,8 +598,11 @@ local function LoadTarget()
                             SetNpcAsHostage(entity)
                         end,
                         canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData.job.name == 'police' then return false end
+                            if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
                             if not IsSuspectCuffed(entity) then return false end
                             if IsSuspectHostage(entity) then return false end
                             return true
@@ -594,8 +616,10 @@ local function LoadTarget()
                             
                         end,
                         canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
                             if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData.job.name == 'police' then return false end
                             if not IsSuspectHostage(entity) then return false end
                             return true
                         end,
@@ -612,6 +636,9 @@ local function LoadTarget()
                         CuffEntity(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
                         if IsSuspectCuffed(data.entity) then return false end
                         if IsSuspectHostage(data.entity) then return false end
@@ -628,6 +655,9 @@ local function LoadTarget()
                         CuffEntity(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if IsSuspectEscorting(data.entity) then return false end
@@ -647,6 +677,9 @@ local function LoadTarget()
                         EscortEntity(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if IsSuspectEscorting(data.entity) then return false end
@@ -666,6 +699,9 @@ local function LoadTarget()
                         EscortEntity(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if not IsSuspectEscorting(data.entity) then return false end
@@ -683,7 +719,11 @@ local function LoadTarget()
                         SearchSuspect(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if IsSuspectEscorting(data.entity) then return false end
                         if IsSuspectHostage(data.entity) then return false end
@@ -700,7 +740,11 @@ local function LoadTarget()
                         ReviveNpc(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if not IsPedDeadOrDying(data.entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
                         if not HasItem(config.RevieItem, 1) then return false end
                         if isHandCuffing then return false end
                         if isReviveNpc then return false end
@@ -714,7 +758,11 @@ local function LoadTarget()
                         SetSuspectInJail(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if not IsSuspectEscorting(data.entity) then return false end
                         if IsSuspectHostage(data.entity) then return false end
@@ -726,13 +774,17 @@ local function LoadTarget()
                     distance = 2.5
                 }, { -- set npc as hostage
                     icon = "fas fa-handcuffs",
-                    label = Lang:t('put_in_jail'),
+                    label = "Take Hostage",
                     onSelect = function(data)
                         ToggleSuspectHostage(data.entity)
                         SetNpcAsHostage(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
                         if not IsSuspectCuffed(data.entity) then return false end
                         if IsSuspectHostage(data.entity) then return false end
                         return true
@@ -746,6 +798,9 @@ local function LoadTarget()
                         RemoveNpcAsHostage(data.entity)
                     end,
                     canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
                         if IsPedDeadOrDying(data.entity) then return false end
                         if not IsSuspectHostage(data.entity) then return false end
                         return true
@@ -772,9 +827,27 @@ AddEventHandler('onResourceStart', function(resource)
     end
 end)
 
-AddEventHandler("playerSpawned", function(spawn)
-    TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
-end)
+if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~= 'missing' then
+    RegisterNetEvent(OnPlayerLoaded, function()
+        TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
+    end)
+
+    RegisterNetEvent(OnPlayerUnload, function()
+        PlayerData = {}
+        isLoggedIn = false
+    end)
+
+    RegisterNetEvent(OnJobUpdate)
+    AddEventHandler(OnJobUpdate, function(job)
+        PlayerData.job = job
+    end)
+
+elseif GetResourceState("es_extended") == 'missing' and GetResourceState("qb-core") == 'missing' then
+    AddEventHandler("playerSpawned", function(spawn)
+        TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
+        PlayerData = nil
+    end)
+end
 
 RegisterNetEvent('mh-walkwhencuffed:client:onjoin', function(data)
     isLoggedIn, cop, suspect = true, nil, nil
