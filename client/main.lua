@@ -2,16 +2,19 @@
 --[[           MH Walk When Cuffed by MaDHouSe79           ]] --
 --[[ ===================================================== ]] --
 local config = nil
-local cop = nil
-local suspect = nil
-local isHandCuffing = false
-local isLoggedIn = false
-local isSearchingSuspect = false
-local isSearchingVehicle = false
-local isReviveNpc = false
+local hostageSuspects = {}
 local searchSuspects = {}
 local searchVehicles = {}
 local cuffedSuspects = {}
+
+local isLoggedIn = false
+local isHandCuffing = false
+local isSearchingSuspect = false
+local isSearchingVehicle = false
+local isReviveNpc = false
+
+local cop = nil
+local suspect = nil
 local suspectEntity = nil -- current entity you are working with
 
 local function SyncData()
@@ -65,6 +68,15 @@ local function SetSuspectEscorting(entity, state)
     end
 end
 
+local function ToggleSuspectHostage(entity)
+    for key, suspect in pairs(cuffedSuspects) do
+        if suspect.entity == entity then
+            suspect.isHostage = not suspect.isHostage
+        end
+    end
+    return false
+end
+
 local function IsSuspectCuffed(entity)
     for key, suspect in pairs(cuffedSuspects) do
         if suspect.entity == entity and suspect.isCuffed then return true end
@@ -79,9 +91,16 @@ local function IsSuspectEscorting(entity)
     return false
 end
 
+local function IsSuspectHostage(entity)
+    for key, suspect in pairs(cuffedSuspects) do
+        if suspect.entity == entity and suspect.isHostage then return true end
+    end
+    return false
+end
+
 local function AddSuspect(entity)
     if not SuspectExsist(entity) then
-        cuffedSuspects[#cuffedSuspects + 1] = {entity = entity, isCuffed = true, isEscorting = true}
+        cuffedSuspects[#cuffedSuspects + 1] = {entity = entity, isCuffed = true, isEscorting = true, isHostage = false}
         SyncData()
     end
 end
@@ -296,6 +315,33 @@ local function SetSuspectInJail(entity)
     suspectEntity = nil
 end
 
+local function SetNpcAsHostage(entity)
+    LoadDict("anim@heists@fleeca_bank@hostages@intro")
+    LoadDict("amb@world_human_drinking@coffee@female@base")
+    SetSuspectEscorting(entity, false)
+    DetachEntity(entity)
+    if IsEntityPlayingAnim(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', 3) then
+        StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    end
+    LoadDict("anim@heists@fleeca_bank@hostages@intro")
+    FreezeEntityPosition(entity, true)
+    if not IsEntityPlayingAnim(PlayerPedId(), 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
+        TaskPlayAnim(entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 8.0, -8.0, -1, 1, 0, false, false, false)
+    end
+    SetPedKeepTask(entity, true)
+    suspectEntity = nil
+end
+
+local function RemoveNpcAsHostage(entity)
+    StopAnimTask(entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', -8.0)
+    TaskPlayAnim(entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
+    SetPedKeepTask(entity, true)
+    CuffEntity(entity)
+    FreezeEntityPosition(entity, false)
+    suspectEntity = entity
+end
+
+
 local function LoadTarget()
     for k, v in pairs(config.Vehicles) do
         exports['qb-target']:AddTargetModel(v.model, {
@@ -320,17 +366,18 @@ local function LoadTarget()
                     canInteract = function(entity, distance, data)
                         return true
                     end
-                }, { -- Search Vehicle
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('search_vehicle'),
-                    action = function(entity)
-                        SearchVehicle(entity)
-                    end,
-                    canInteract = function(entity)
-                        if searchVehicles[entity] then return false end
-                        return true
-                    end,
-                },
+                }, 
+                -- { -- Search Vehicle
+                --     icon = "fas fa-handcuffs",
+                --     label = Lang:t('search_vehicle'),
+                --     action = function(entity)
+                --         SearchVehicle(entity)
+                --     end,
+                --     canInteract = function(entity)
+                --         if searchVehicles[entity] then return false end
+                --         return true
+                --     end,
+                -- },
             },
             distance = 3.0
         })
@@ -349,6 +396,7 @@ local function LoadTarget()
                     canInteract = function(entity, distance, data)
                         if IsPedDeadOrDying(entity) then return false end
                         if IsSuspectCuffed(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         if not HasItem(config.HandcuffItem, 1) then return false end
                         if isHandCuffing then return false end
                         if isReviveNpc then return false end
@@ -365,6 +413,7 @@ local function LoadTarget()
                         if IsPedDeadOrDying(entity) then return false end
                         if not IsSuspectCuffed(entity) then return false end
                         if IsSuspectEscorting(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         if isHandCuffing then return false end
                         if isSearchingSuspect then return false end
                         if isReviveNpc then return false end
@@ -383,6 +432,7 @@ local function LoadTarget()
                         if IsPedDeadOrDying(entity) then return false end
                         if not IsSuspectCuffed(entity) then return false end
                         if IsSuspectEscorting(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         if isHandCuffing then return false end
                         if isSearchingSuspect then return false end
                         if isReviveNpc then return false end
@@ -401,6 +451,7 @@ local function LoadTarget()
                         if IsPedDeadOrDying(entity) then return false end
                         if not IsSuspectCuffed(entity) then return false end
                         if not IsSuspectEscorting(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         if isHandCuffing then return false end
                         if isSearchingSuspect then return false end
                         if isReviveNpc then return false end
@@ -416,6 +467,7 @@ local function LoadTarget()
                         if IsPedDeadOrDying(entity) then return false end
                         if not IsSuspectCuffed(entity) then return false end
                         if IsSuspectEscorting(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         if isHandCuffing then return false end
                         if isSearchingSuspect then return false end
                         if isReviveNpc then return false end
@@ -444,12 +496,41 @@ local function LoadTarget()
                         if IsPedDeadOrDying(entity) then return false end
                         if not IsSuspectCuffed(entity) then return false end
                         if not IsSuspectEscorting(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
                         local coords = GetEntityCoords(PlayerPedId())
                         local jail_distance = GetDistance(coords, config.JailCoords)
                         if jail_distance > 1.5 then return false end
                         return true
                     end,
-                }
+                },
+                { -- set npc as hostage
+                    icon = "fas fa-handcuffs",
+                    label = "Make Hostage",
+                    action = function(entity)
+                        ToggleSuspectHostage(entity)
+                        SetNpcAsHostage(entity)
+                    end,
+                    canInteract = function(entity)
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not IsSuspectCuffed(entity) then return false end
+                        if IsSuspectHostage(entity) then return false end
+                        return true
+                    end,
+                },
+                { -- release npc as hostage
+                    icon = "fas fa-handcuffs",
+                    label = "Release Hostage",
+                    action = function(entity)
+                        ToggleSuspectHostage(entity)
+                        RemoveNpcAsHostage(entity)
+                        
+                    end,
+                    canInteract = function(entity)
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not IsSuspectHostage(entity) then return false end
+                        return true
+                    end,
+                },
             },
             distance = 2.5
         })
@@ -509,6 +590,7 @@ CreateThread(function()
     LoadDict("mp_arresting")
     LoadDict('amb@world_human_drinking@coffee@female@base')
     LoadDict('anim@move_m@trash')
+    LoadDict("anim@heists@fleeca_bank@hostages@intro")
     while true do
         local sleep = 1000
         if isLoggedIn then
@@ -555,6 +637,17 @@ CreateThread(function()
                                     TaskPlayAnim(suspect.entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
+                            end
+                        end
+                        if suspect.isHostage then
+                            suspect.isCuffed = false
+                            if not IsEntityPlayingAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
+                                TaskPlayAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 8.0, -8.0, -1, 1, 0, false, false, false)
+                                SetPedKeepTask(suspect.entity, true)
+                            end
+                        elseif not suspect.isHostage then
+                            if IsEntityPlayingAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
+                                StopAnimTask(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', -8.0)
                             end
                         end
                     end
