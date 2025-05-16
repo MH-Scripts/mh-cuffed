@@ -676,9 +676,12 @@ end
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         isLoggedIn = false
-        isSearchingSuspect = false
         cop = nil
         suspect = nil
+        isHandCuffing = false
+        isSearchingSuspect = false
+        isSearchingVehicle = false
+        isReviveNpc = false
     end
 end)
 
@@ -696,6 +699,10 @@ if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~
     RegisterNetEvent(OnPlayerUnload, function()
         PlayerData = {}
         isLoggedIn = false
+        isHandCuffing = false
+        isSearchingSuspect = false
+        isSearchingVehicle = false
+        isReviveNpc = false
     end)
 
     RegisterNetEvent(OnJobUpdate)
