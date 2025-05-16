@@ -9,6 +9,7 @@ author 'MaDHouSe79'
 version '1.0.0'
 
 shared_scripts {
+	'@ox_lib/init.lua',
 	'locales/locale.lua',
 	'locales/en.lua',
 	'locales/*.lua',
@@ -18,9 +19,6 @@ shared_scripts {
 
 client_scripts {
     'client/main.lua',
-    'client/peds.lua',
-    'client/players.lua',
-    
 }
 
 server_scripts {

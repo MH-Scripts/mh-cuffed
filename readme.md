@@ -25,7 +25,7 @@
 # My Youtube Channel
 - [Subscribe](https://www.youtube.com/@MaDHouSe79) 
 
-# MH Walk When Cuffed
+# MH Walk When Cuffed (QB/ESX)
 - When you get cuffed by a cop you don't walk or move, with this script you also walk with the cop while cuffed.
 - so when the cop is walking you are also automaticly going to walk animation.
 - you can arrest npc peds and searsh them.

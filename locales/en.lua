@@ -3,7 +3,6 @@ local Translations = {
     ['uncuff'] = "UnCuff Citezen",
     ['start_escort'] = "Start Escort",
     ['stop_escort'] = "Stop Escort",
-    ['rob_citezen'] = "Rob Citezen",
     ['search_suspect'] = "Search Suspect",
     ['search_vehicle'] = "Search Vehicle",
     ['found_noting'] = "You found nothing!",
