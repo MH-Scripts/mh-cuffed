@@ -41,8 +41,8 @@ local function CuffEntity(entity)
     if isHandCuffing then return end
     isHandCuffing = true
     LoadDict("mp_arrest_paired")
-    if IsEntityPlayingAnim(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', 3) then
-        StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+        StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     end
     SetEntityAsMissionEntity(entity, true, true)
     TaskSetBlockingOfNonTemporaryEvents(entity, true)
@@ -61,8 +61,8 @@ local function CuffEntity(entity)
     Wait(100)
     SetEnableHandcuffs(entity, true)
     SetPedCanPlayGestureAnims(entity, false)
-    if not IsEntityPlayingAnim(entity, 'mp_arresting', 'idle', 3) then
-        TaskPlayAnim(entity, 'mp_arresting', 'idle', 8.0, -8, -1, 16, 0.0, false, false, false)
+    if not IsEntityPlayingAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+        TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 16, 0.0, false, false, false)
         SetPedKeepTask(entity, true)
     end
     Suspect:new(entity)
@@ -74,13 +74,13 @@ end
 
 local function UnCuffEntity(entity)
     LoadDict("mp_arresting")
-    LoadDict('amb@world_human_drinking@coffee@female@base')
+    LoadDict(config.Animations.player.walk.dict)
     SetEntityAsMissionEntity(entity, true, true)
     FreezeEntityPosition(PlayerPedId(), true)
-    StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     TriggerServerEvent('InteractSound_SV:PlayOnSource', 'Uncuff', 0.5)
-    StopAnimTask(entity, 'mp_arresting', 'walk', -8.0)
-    StopAnimTask(entity, 'mp_arresting', 'idle', -8.0)
+    StopAnimTask(entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
+    StopAnimTask(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, -8.0)
     DetachEntity(entity)
     FreezeEntityPosition(entity, false)
     FreezeEntityPosition(PlayerPedId(), false)
@@ -90,29 +90,32 @@ local function UnCuffEntity(entity)
     Suspect:setEscorting(entity, false)
     Suspect:delete(entity)
     suspectEntity = nil
-    if not IsEntityPlayingAnim(entity, 'mp_arresting', 'idle', 3) then
-        TaskPlayAnim(entity, 'mp_arresting', 'idle', 8.0, -8, -1, 16, 0.0, false, false, false)
+    if not IsEntityPlayingAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+        TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 16, 0.0, false, false, false)
         SetPedKeepTask(entity, true)
     end
 end
 
 local function EscortEntity(entity)
     LoadDict("mp_arresting")
-    LoadDict('amb@world_human_drinking@coffee@female@base')
+    LoadDict(config.Animations.player.walk.dict)
+    LoadDict(config.Animations.ped.idle.dict)
+    LoadDict(config.Animations.ped.walk.dict)
+    LoadDict(config.Animations.ped.run.dict)
     FreezeEntityPosition(entity, false)
     SetEntityAsMissionEntity(entity, true, true)
     if not Suspect:isEscorting(entity) then
         DetachEntity(entity)
         suspectEntity = nil
-        StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+        StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
         if Suspect:isCuffed(entity) then
             suspectEntity = entity
             Suspect:setEscorting(entity, false)
-            StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
-            StopAnimTask(entity, 'mp_arresting', 'walk', -8.0)
-            StopAnimTask(entity, 'mp_arresting', 'run', -8.0)
-            if not IsEntityPlayingAnim(entity, 'mp_arresting', 'idle', 3) then
-                TaskPlayAnim(entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
+            StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
+            StopAnimTask(entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
+            StopAnimTask(entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+            if not IsEntityPlayingAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                 SetPedKeepTask(entity, true)
             end
             FreezeEntityPosition(entity, true)
@@ -132,7 +135,7 @@ local function SearchSuspect(entity)
     if math.random(1, 10) < 2 then searchitem = config.JailItems[math.random(1, #config.JailItems)] end
     TaskTurnPedToFaceCoord(PlayerPedId(), GetEntityCoords(entity), 5000)
     Wait(1000)
-    StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     TaskPlayAnim(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', 3.0, 3.0, -1, 16, 0, false, false, false)
     Wait(3500)
     StopAnimTask(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', -8.0)
@@ -203,25 +206,25 @@ local function TakeEntityOutVehicle(vehicle)
 end
 
 local function SetNpcAsHostage(entity)
-    LoadDict("anim@heists@fleeca_bank@hostages@intro")
-    LoadDict("amb@world_human_drinking@coffee@female@base")
+    LoadDict(config.Animations.player.walk.dict)
     Suspect:setEscorting(entity, false)
     DetachEntity(entity)
-    if IsEntityPlayingAnim(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', 3) then
-        StopAnimTask(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', -8.0)
+    if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+        StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     end
-    LoadDict("anim@heists@fleeca_bank@hostages@intro")
+
+    LoadDict(config.Animations.ped.hostage.dict)
     FreezeEntityPosition(entity, true)
-    if not IsEntityPlayingAnim(PlayerPedId(), 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
-        TaskPlayAnim(entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 8.0, -8.0, -1, 1, 0, false, false, false)
+    if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+        TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
     end
     SetPedKeepTask(entity, true)
     suspectEntity = nil
 end
 
 local function RemoveNpcAsHostage(entity)
-    StopAnimTask(entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', -8.0)
-    TaskPlayAnim(entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
+    StopAnimTask(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
     FreezeEntityPosition(entity, false)
@@ -749,13 +752,14 @@ end)
 
 -- cop/player VS Npc
 CreateThread(function()
-    LoadDict("mp_arresting")
-    LoadDict('amb@world_human_drinking@coffee@female@base')
-    LoadDict('anim@move_m@trash')
-    LoadDict("anim@heists@fleeca_bank@hostages@intro")
     while true do
         local sleep = 1000
         if isLoggedIn then
+            LoadDict(config.Animations.player.walk.dict)
+            LoadDict(config.Animations.ped.idle.dict)
+            LoadDict(config.Animations.ped.walk.dict)
+            LoadDict(config.Animations.ped.run.dict)
+            LoadDict(config.Animations.ped.hostage.dict)            
             for key, suspect in pairs(cuffedSuspects) do
                 if suspect.entity ~= nil and DoesEntityExist(suspect.entity) then
                     sleep = 0
@@ -765,51 +769,51 @@ CreateThread(function()
                             if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
                                 AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
                             elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
-                                if not IsEntityPlayingAnim(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', 'base', 3) then
-                                    TaskPlayAnim(PlayerPedId(), 'amb@world_human_drinking@coffee@female@base', "base", 8.0, 8.0, -1, 50, 0, false, false, false)
+                                if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+                                    TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
                                 end
                             end
                             if IsPedWalking(PlayerPedId()) then
-                                StopAnimTask(suspect.entity, 'anim@move_m@trash', 'run', -8.0)
-                                if not IsEntityPlayingAnim(suspect.entity, 'mp_arresting', 'walk', 3) then
-                                    TaskPlayAnim(suspect.entity, 'mp_arresting', 'walk', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             elseif IsPedSprinting(PlayerPedId()) then
-                                if not IsEntityPlayingAnim(suspect.entity, 'anim@move_m@trash', 'run', 3) then
-                                    TaskPlayAnim(suspect.entity, 'anim@move_m@trash', 'run', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             else
-                                StopAnimTask(suspect.entity, 'mp_arresting', 'walk', -8.0)
-                                StopAnimTask(suspect.entity, 'anim@move_m@trash', 'run', -8.0)
-                                if not IsEntityPlayingAnim(suspect.entity, 'mp_arresting', 'idle', 3) then
-                                    TaskPlayAnim(suspect.entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                StopAnimTask(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
+                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             end
                         elseif not suspect.isEscorting then
                             if suspect.isInVehicle then
-                                if not IsEntityPlayingAnim(suspect.entity, 'mp_arresting', 'sit', 3) then
-                                    TaskPlayAnim(suspect.entity, 'mp_arresting', 'sit', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             else
-                                if not IsEntityPlayingAnim(suspect.entity, 'mp_arresting', 'idle', 3) then
-                                    TaskPlayAnim(suspect.entity, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             end
                         end
                         if suspect.isHostage then
                             suspect.isCuffed = false
-                            if not IsEntityPlayingAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
-                                TaskPlayAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 8.0, -8.0, -1, 1, 0, false, false, false)
+                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
                                 SetPedKeepTask(suspect.entity, true)
                             end
                         elseif not suspect.isHostage then
-                            if IsEntityPlayingAnim(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', 3) then
-                                StopAnimTask(suspect.entity, 'anim@heists@fleeca_bank@hostages@intro', 'intro_standing_ped_d', -8.0)
+                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
                             end
                         end
                     end
