@@ -37,11 +37,6 @@ local function GetIsHandcuffed() return isHandcuffed end
 exports('GetIsHandcuffed', GetIsHandcuffed)
 ```
 
-```lua
-local function GetIsEscorted() return isEscorted end
-exports('GetIsEscorted', GetIsEscorted)
-```
-
 # LICENSE
 [GPL LICENSE](./LICENSE)<br />
 &copy; [MaDHouSe79](https://www.youtube.com/@MaDHouSe79)

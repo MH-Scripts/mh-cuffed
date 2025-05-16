@@ -14,7 +14,7 @@ CreateThread(function()
             if suspect == PlayerPedId() then
                 LoadDict("mp_arresting")
                 -- Movements for suspect
-                local isCuffed = exports['qb-policejob']:IsHandcuffed()
+                local isCuffed = exports['qb-policejob']:GetIsHandcuffed()
                 if isCuffed then
                     SetEnableHandcuffs(suspect, true)
                     SetPedCanPlayGestureAnims(suspect, false)
