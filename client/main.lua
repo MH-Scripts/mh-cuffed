@@ -719,6 +719,11 @@ end
 
 RegisterNetEvent('mh-walkwhencuffed:client:onjoin', function(data)
     isLoggedIn, cop, suspect = true, nil, nil
+    if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~= 'missing' then
+        PlayerData = GetPlayerData()
+    elseif GetResourceState("es_extended") == 'missing' and GetResourceState("qb-core") == 'missing' then
+        PlayerData = nil
+    end
     config = data
     Wait(10)
     LoadTarget()
