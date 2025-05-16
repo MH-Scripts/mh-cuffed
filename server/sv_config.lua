@@ -40,5 +40,9 @@ SV_Config.Animations = {
             dict = "anim@heists@ornate_bank@hostages@ped_d@",
             name = "idle",
         },
+        surender = {
+            dict = "random@arrests@busted",
+            name = "idle_a"
+        }
     }
 }

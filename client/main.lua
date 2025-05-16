@@ -223,7 +223,34 @@ local function SetNpcAsHostage(entity)
 end
 
 local function RemoveNpcAsHostage(entity)
+    LoadDict(config.Animations.ped.idle.dict)
     StopAnimTask(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+    SetPedKeepTask(entity, true)
+    CuffEntity(entity)
+    FreezeEntityPosition(entity, false)
+    suspectEntity = entity
+end
+
+local function SetNpcAsSurender(entity)
+    LoadDict(config.Animations.player.walk.dict)
+    Suspect:setEscorting(entity, false)
+    DetachEntity(entity)
+    if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+        StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
+    end
+
+    LoadDict(config.Animations.ped.hostage.dict)
+    FreezeEntityPosition(entity, true)
+    if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+        TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+    end
+    SetPedKeepTask(entity, true)
+    suspectEntity = nil
+end
+
+local function RemoveNpcAsSurender(entity)
+    StopAnimTask(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
     TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
@@ -487,6 +514,39 @@ local function LoadTarget()
                             if not Suspect:isHostage(entity) then return false end
                             return true
                         end,
+                    }, { -- set npc as surender
+                        icon = "fas fa-handcuffs",
+                        label = "Make Surender",
+                        action = function(entity)
+                            Suspect:toggleSurender(entity)
+                            SetNpcAsSurender(entity)
+                        end,
+                        canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
+                            if IsPedDeadOrDying(entity) then return false end
+                            if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                            if not Suspect:isCuffed(entity) then return false end
+                            if Suspect:isSurender(entity) then return false end
+                            return true
+                        end,
+                    }, { -- release npc as surender
+                        icon = "fas fa-handcuffs",
+                        label = "Release Surender",
+                        action = function(entity)
+                            Suspect:toggleSurender(entity)
+                            RemoveNpcAsSurender(entity)
+                            
+                        end,
+                        canInteract = function(entity)
+                            if not isLoggedIn then return false end
+                            if not IsPedHuman(entity) then return false end
+                            if IsPedAPlayer(entity) then return false end
+                            if IsPedDeadOrDying(entity) then return false end
+                            if not Suspect:isSurender(entity) then return false end
+                            return true
+                        end,
                     },
                 },
                 distance = 2.5
@@ -670,6 +730,40 @@ local function LoadTarget()
                         return true
                     end,
                     distance = 2.5
+                }, { -- set npc as surender
+                    icon = "fas fa-handcuffs",
+                    label = "Make Surender",
+                    onSelect = function(data)
+                        Suspect:toggleSurender(entity)
+                        SetNpcAsSurender(entity)
+                    end,
+                    canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isSurender(entity) then return false end
+                        return true
+                    end,
+                    distance = 2.5
+                }, { -- release npc as surender
+                    icon = "fas fa-handcuffs",
+                    label = "Release Surender",
+                    onSelect = function(data)
+                        Suspect:toggleSurender(data.entity)
+                        RemoveNpcAsSurender(data.entity)
+                    end,
+                    canInteract = function(data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(data.entity) then return false end
+                        if IsPedAPlayer(data.entity) then return false end
+                        if IsPedDeadOrDying(data.entity) then return false end
+                        if not Suspect:isSurender(data.entity) then return false end
+                        return true
+                    end,
+                    distance = 2.5
                 },
             })
         end
@@ -759,7 +853,8 @@ CreateThread(function()
             LoadDict(config.Animations.ped.idle.dict)
             LoadDict(config.Animations.ped.walk.dict)
             LoadDict(config.Animations.ped.run.dict)
-            LoadDict(config.Animations.ped.hostage.dict)            
+            LoadDict(config.Animations.ped.hostage.dict)
+            LoadDict(config.Animations.ped.surender.dict)
             for key, suspect in pairs(cuffedSuspects) do
                 if suspect.entity ~= nil and DoesEntityExist(suspect.entity) then
                     sleep = 0
@@ -816,6 +911,19 @@ CreateThread(function()
                                 StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
                             end
                         end
+
+                        if suspect.isSurender then
+                            suspect.isCuffed = false
+                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                                SetPedKeepTask(suspect.entity, true)
+                            end
+                        elseif not suspect.isHostage then
+                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
+                            end
+                        end
+
                     end
                 end
             end

@@ -49,6 +49,15 @@ function Suspect:toggleHostage(entity)
     return false
 end
 
+function Suspect:toggleSurender(entity)
+    for key, suspect in pairs(cuffedSuspects) do
+        if suspect.entity == entity then
+            suspect.isSurender = not suspect.isSurender
+        end
+    end
+    return false
+end
+
 function Suspect:isCuffed(entity)
     for key, suspect in pairs(cuffedSuspects) do
         if suspect.entity == entity and suspect.isCuffed then return true end
@@ -66,6 +75,13 @@ end
 function Suspect:isHostage(entity)
     for key, suspect in pairs(cuffedSuspects) do
         if suspect.entity == entity and suspect.isHostage then return true end
+    end
+    return false
+end
+
+function Suspect:isSurender(entity)
+    for key, suspect in pairs(cuffedSuspects) do
+        if suspect.entity == entity and suspect.isSurender then return true end
     end
     return false
 end
