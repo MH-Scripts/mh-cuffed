@@ -42,29 +42,6 @@ local function GetIsEscorted() return isEscorted end
 exports('GetIsEscorted', GetIsEscorted)
 ```
 
-# Replace code in `qb-policejob` (server side)
-- in `qb-policejob/server/interactions.lua` around line 19
-```lua
-RegisterNetEvent('police:server:CuffPlayer', function(playerId, isSoftcuff)
-    local src = source
-    local playerPed = GetPlayerPed(src)
-    local targetPed = GetPlayerPed(playerId)
-    local playerCoords = GetEntityCoords(playerPed)
-    local targetCoords = GetEntityCoords(targetPed)
-    if #(playerCoords - targetCoords) > 2.5 then return DropPlayer(src, 'Attempted exploit abuse') end
-
-    local Player = QBCore.Functions.GetPlayer(src)
-    local CuffedPlayer = QBCore.Functions.GetPlayer(playerId)
-    if not Player or not CuffedPlayer or (not Player.Functions.GetItemByName('handcuffs') and Player.PlayerData.job.type ~= 'leo') then return end
-    TriggerClientEvent('police:client:GetCuffed', CuffedPlayer.PlayerData.source, Player.PlayerData.source, isSoftcuff)
-    
-    -- Add here
-    if GetResourceState("mh-walkwhencuffed") ~= 'missing' then
-        exports['mh-walkwhencuffed']:SetData({cop = Player.PlayerData.source, suspect = CuffedPlayer.PlayerData.source})
-    end
-end)
-```
-
 # LICENSE
 [GPL LICENSE](./LICENSE)<br />
 &copy; [MaDHouSe79](https://www.youtube.com/@MaDHouSe79)

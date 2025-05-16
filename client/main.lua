@@ -4,7 +4,6 @@
 local config = nil
 local searchSuspects = {}
 local searchVehicles = {}
-local isLoggedIn = false
 local isHandCuffing = false
 local isSearchingSuspect = false
 local isSearchingVehicle = false
