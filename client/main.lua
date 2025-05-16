@@ -12,7 +12,7 @@ local suspectEntity = nil -- current entity you are working with at the moment.
 
 local function Notify(message, type, length)
     if GetResourceState("ox_lib") ~= 'missing' then
-        lib.notify({title = "MH Walk When Cuffed", description = message, type = type})
+        lib.notify({ title = "MH Walk When Cuffed", description = message, type = type })
     else
         print(message)
     end
@@ -40,7 +40,6 @@ end
 local function CuffEntity(entity)
     if isHandCuffing then return end
     isHandCuffing = true
-    LoadDict("mp_arrest_paired")
     if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
         StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     end
@@ -53,6 +52,7 @@ local function CuffEntity(entity)
     SetPedFleeAttributes(entity, 0, false)
     Wait(200)
     AttachEntityToEntity(entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
+    LoadDict("mp_arrest_paired")
     TaskPlayAnim(PlayerPedId(), 'mp_arrest_paired', 'cop_p2_back_right', 3.0, 3.0, -1, 48, 0, 0, 0, 0)
     TriggerServerEvent('InteractSound_SV:PlayOnSource', 'Cuff', 0.5)
     TaskPlayAnim(entity, 'mp_arrest_paired', 'crook_p2_back_right', 3.0, 3.0, -1, 32, 0, 0, 0, 0, true, true, true)
@@ -73,8 +73,6 @@ local function CuffEntity(entity)
 end
 
 local function UnCuffEntity(entity)
-    LoadDict("mp_arresting")
-    LoadDict(config.Animations.player.walk.dict)
     SetEntityAsMissionEntity(entity, true, true)
     FreezeEntityPosition(PlayerPedId(), true)
     StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
@@ -97,11 +95,6 @@ local function UnCuffEntity(entity)
 end
 
 local function EscortEntity(entity)
-    LoadDict("mp_arresting")
-    LoadDict(config.Animations.player.walk.dict)
-    LoadDict(config.Animations.ped.idle.dict)
-    LoadDict(config.Animations.ped.walk.dict)
-    LoadDict(config.Animations.ped.run.dict)
     FreezeEntityPosition(entity, false)
     SetEntityAsMissionEntity(entity, true, true)
     if not Suspect:isEscorting(entity) then
@@ -130,17 +123,16 @@ end
 local function SearchSuspect(entity)
     searchSuspects[entity] = true
     isSearchingSuspect = true
-    LoadDict("random@shop_robbery")
     local searchitem = nil
     if math.random(1, 10) < 2 then searchitem = config.JailItems[math.random(1, #config.JailItems)] end
     TaskTurnPedToFaceCoord(PlayerPedId(), GetEntityCoords(entity), 5000)
     Wait(1000)
     StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
-    TaskPlayAnim(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', 3.0, 3.0, -1, 16, 0, false, false, false)
+    TaskPlayAnim(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, 3.0, 3.0, -1, 16, 0, false, false, false)
     Wait(3500)
-    StopAnimTask(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', -8.0)
+    StopAnimTask(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, -8.0)
     if searchitem ~= nil then
-        Notify(Lang:t('found_item', {item = searchitem}), "error", 5000)
+        Notify(Lang:t('found_item', { item = searchitem }), "error", 5000)
     else
         Notify(Lang:t('found_noting'), "success", 5000)
     end
@@ -149,11 +141,10 @@ end
 
 local function ReviveNpc(entity)
     isReviveNpc = true
-    LoadDict('mini@cpr@char_a@cpr_str')
-    TaskPlayAnim(PlayerPedId(), 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest', 3.0, 3.0, -1, 33, 0, false, false, false)
+    TaskPlayAnim(PlayerPedId(), config.Animations.player.revive.dict, config.Animations.player.revive.name, 3.0, 3.0, -1, 33, 0, false, false, false)
     SetPedKeepTask(PlayerPedId(), true)
     Wait(5000)
-    StopAnimTask(PlayerPedId(), 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest', -8.0)
+    StopAnimTask(PlayerPedId(), config.Animations.player.revive.dict, config.Animations.player.revive.name, -8.0)
     SetEntityHealth(entity, 200)
     CuffEntity(entity)
     isReviveNpc = false
@@ -162,10 +153,11 @@ end
 local function SearchVehicle(entity)
     searchVehicles[entity] = true
     isSearchingVehicle = true
-    LoadDict("random@shop_robbery")
-    TaskPlayAnim(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', 3.0, 3.0, -1, 16, 0, false, false, false)
+    LoadDict(config.Animations.player.search.dict)
+    TaskPlayAnim(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, 3.0, 3.0, -1,
+        16, 0, false, false, false)
     Wait(3500)
-    StopAnimTask(PlayerPedId(), 'random@shop_robbery', 'robbery_action_b', -8.0)
+    StopAnimTask(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, -8.0)
     isSearchingVehicle = false
 end
 
@@ -214,7 +206,8 @@ local function SetNpcAsHostage(entity)
     end
     LoadDict(config.Animations.ped.hostage.dict)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-        TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+        TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0,
+            false, false, false)
     end
     FreezeEntityPosition(entity, true)
     SetBlockingOfNonTemporaryEvents(entity, true)
@@ -226,7 +219,8 @@ end
 local function RemoveNpcAsHostage(entity)
     LoadDict(config.Animations.ped.idle.dict)
     StopAnimTask(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
-    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false,
+        false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
     FreezeEntityPosition(entity, false)
@@ -242,7 +236,8 @@ local function SetNpcAsSurender(entity)
     end
     LoadDict(config.Animations.ped.hostage.dict)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-        TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+        TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1,
+            0, false, false, false)
     end
     FreezeEntityPosition(entity, true)
     SetBlockingOfNonTemporaryEvents(entity, true)
@@ -253,7 +248,8 @@ end
 
 local function RemoveNpcAsSurender(entity)
     StopAnimTask(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
-    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false,
+        false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
     FreezeEntityPosition(entity, false)
@@ -276,27 +272,27 @@ local function LoadTarget()
                             return true
                         end,
                     }, {
-                        type = "client",
-                        icon = "fas fa-car",
-                        label = Lang:t('get_out_vehicle'),
-                        action = function(entity)
-                            TakeEntityOutVehicle(entity)
-                        end,
-                        canInteract = function(entity, distance, data)
-                            return true
-                        end
-                    },{ -- Search Vehicle
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('search_vehicle'),
-                        action = function(entity)
-                            SearchVehicle(entity)
-                        end,
-                        canInteract = function(entity)
-                            if PlayerData.job.name ~= 'police' then return false end
-                            if searchVehicles[entity] then return false end
-                            return true
-                        end,
-                    },
+                    type = "client",
+                    icon = "fas fa-car",
+                    label = Lang:t('get_out_vehicle'),
+                    action = function(entity)
+                        TakeEntityOutVehicle(entity)
+                    end,
+                    canInteract = function(entity, distance, data)
+                        return true
+                    end
+                }, {    -- Search Vehicle
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('search_vehicle'),
+                    action = function(entity)
+                        SearchVehicle(entity)
+                    end,
+                    canInteract = function(entity)
+                        if PlayerData.job.name ~= 'police' then return false end
+                        if searchVehicles[entity] then return false end
+                        return true
+                    end,
+                },
                 },
                 distance = 3.0
             })
@@ -313,28 +309,28 @@ local function LoadTarget()
                     end,
                     distance = 3.0
                 }, {
-                    icon = "fas fa-car",
-                    label = Lang:t('get_out_vehicle'),
-                    onSelect = function(data)
-                        TakeEntityOutVehicle(data.entity)
-                    end,
-                    canInteract = function(data)
-                        return true
-                    end,
-                    distance = 2.5
-                }, {
-                    icon = "fas fa-car",
-                    label = Lang:t('search_vehicle'),
-                    onSelect = function(data)
-                        SearchVehicle(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if PlayerData.job.name ~= 'police' then return false end
-                        if searchVehicles[data.entity] then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                },
+                icon = "fas fa-car",
+                label = Lang:t('get_out_vehicle'),
+                onSelect = function(data)
+                    TakeEntityOutVehicle(data.entity)
+                end,
+                canInteract = function(data)
+                    return true
+                end,
+                distance = 2.5
+            }, {
+                icon = "fas fa-car",
+                label = Lang:t('search_vehicle'),
+                onSelect = function(data)
+                    SearchVehicle(data.entity)
+                end,
+                canInteract = function(data)
+                    if PlayerData.job.name ~= 'police' then return false end
+                    if searchVehicles[data.entity] then return false end
+                    return true
+                end,
+                distance = 2.5
+            },
             })
         end
     end
@@ -363,193 +359,191 @@ local function LoadTarget()
                             return true
                         end
                     }, { -- UnCuff
-                        type = "client",
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('uncuff'),
-                        action = function(entity)
-                            UnCuffEntity(entity)
-                        end,
-                        canInteract = function(entity, distance, data)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if Suspect:isEscorting(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            if isHandCuffing then return false end
-                            if isSearchingSuspect then return false end
-                            if isReviveNpc then return false end
-                            return true
-                        end
-                    }, { -- Start Escort
-                        type = "client",
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('start_escort'),
-                        action = function(entity)
-                            Suspect:setEscorting(entity, true)
-                            Wait(10)
-                            EscortEntity(entity)
-                        end,
-                        canInteract = function(entity, distance, data)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if Suspect:isEscorting(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            if isHandCuffing then return false end
-                            if isSearchingSuspect then return false end
-                            if isReviveNpc then return false end
-                            return true
-                        end
-                    }, { -- Stop Escort
-                        type = "client",
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('stop_escort'),
-                        action = function(entity)
-                            Suspect:setEscorting(entity, false)
-                            Wait(10)
-                            EscortEntity(entity)
-                        end,
-                        canInteract = function(entity, distance, data)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if not Suspect:isEscorting(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            if isHandCuffing then return false end
-                            if isSearchingSuspect then return false end
-                            if isReviveNpc then return false end
-                            return true
-                        end
-                    }, { -- Search Suspect
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('search_suspect'),
-                        action = function(entity)
-                            SearchSuspect(entity)
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if Suspect:isEscorting(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            if isHandCuffing then return false end
-                            if isSearchingSuspect then return false end
-                            if isReviveNpc then return false end
-                            return true
-                        end,
-                    }, { -- Revive Suspect
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('revive_suspect'),
-                        action = function(entity)
-                            ReviveNpc(entity)
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if not IsPedDeadOrDying(entity) then return false end
-                            if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
-                            if not HasItem(config.RevieItem, 1) then return false end
-                            if isHandCuffing then return false end
-                            if isReviveNpc then return false end
-                            return true
-                        end,
-                    }, { -- put in jail
-                        icon = "fas fa-handcuffs",
-                        label = Lang:t('put_in_jail'),
-                        action = function(entity)
-                            Suspect:setInJail(entity)
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if not Suspect:isEscorting(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            local coords = GetEntityCoords(PlayerPedId())
-                            local jail_distance = GetDistance(coords, config.JailCoords)
-                            if jail_distance > 1.5 then return false end
-                            return true
-                        end,
-                    }, { -- set npc as hostage
-                        icon = "fas fa-handcuffs",
-                        label = "Make Hostage",
-                        action = function(entity)
-                            Suspect:toggleHostage(entity)
-                            SetNpcAsHostage(entity)
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if Suspect:isHostage(entity) then return false end
-                            return true
-                        end,
-                    }, { -- release npc as hostage
-                        icon = "fas fa-handcuffs",
-                        label = "Release Hostage",
-                        action = function(entity)
-                            Suspect:toggleHostage(entity)
-                            RemoveNpcAsHostage(entity)
-                            
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if not Suspect:isHostage(entity) then return false end
-                            return true
-                        end,
-                    }, { -- set npc as surender
-                        icon = "fas fa-handcuffs",
-                        label = "Make Surender",
-                        action = function(entity)
-                            Suspect:toggleSurender(entity)
-                            SetNpcAsSurender(entity)
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
-                            if not Suspect:isCuffed(entity) then return false end
-                            if Suspect:isSurender(entity) then return false end
-                            return true
-                        end,
-                    }, { -- release npc as surender
-                        icon = "fas fa-handcuffs",
-                        label = "Release Surender",
-                        action = function(entity)
-                            Suspect:toggleSurender(entity)
-                            RemoveNpcAsSurender(entity)
-                            
-                        end,
-                        canInteract = function(entity)
-                            if not isLoggedIn then return false end
-                            if not IsPedHuman(entity) then return false end
-                            if IsPedAPlayer(entity) then return false end
-                            if IsPedDeadOrDying(entity) then return false end
-                            if not Suspect:isSurender(entity) then return false end
-                            return true
-                        end,
-                    },
+                    type = "client",
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('uncuff'),
+                    action = function(entity)
+                        UnCuffEntity(entity)
+                    end,
+                    canInteract = function(entity, distance, data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isEscorting(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        if isHandCuffing then return false end
+                        if isSearchingSuspect then return false end
+                        if isReviveNpc then return false end
+                        return true
+                    end
+                }, {     -- Start Escort
+                    type = "client",
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('start_escort'),
+                    action = function(entity)
+                        Suspect:setEscorting(entity, true)
+                        Wait(10)
+                        EscortEntity(entity)
+                    end,
+                    canInteract = function(entity, distance, data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isEscorting(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        if isHandCuffing then return false end
+                        if isSearchingSuspect then return false end
+                        if isReviveNpc then return false end
+                        return true
+                    end
+                }, {     -- Stop Escort
+                    type = "client",
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('stop_escort'),
+                    action = function(entity)
+                        Suspect:setEscorting(entity, false)
+                        Wait(10)
+                        EscortEntity(entity)
+                    end,
+                    canInteract = function(entity, distance, data)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if not Suspect:isEscorting(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        if isHandCuffing then return false end
+                        if isSearchingSuspect then return false end
+                        if isReviveNpc then return false end
+                        return true
+                    end
+                }, {     -- Search Suspect
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('search_suspect'),
+                    action = function(entity)
+                        SearchSuspect(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isEscorting(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        if isHandCuffing then return false end
+                        if isSearchingSuspect then return false end
+                        if isReviveNpc then return false end
+                        return true
+                    end,
+                }, {     -- Revive Suspect
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('revive_suspect'),
+                    action = function(entity)
+                        ReviveNpc(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if not IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
+                        if not HasItem(config.RevieItem, 1) then return false end
+                        if isHandCuffing then return false end
+                        if isReviveNpc then return false end
+                        return true
+                    end,
+                }, {     -- put in jail
+                    icon = "fas fa-handcuffs",
+                    label = Lang:t('put_in_jail'),
+                    action = function(entity)
+                        Suspect:setInJail(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if not Suspect:isEscorting(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        local coords = GetEntityCoords(PlayerPedId())
+                        local jail_distance = GetDistance(coords, config.JailCoords)
+                        if jail_distance > 1.5 then return false end
+                        return true
+                    end,
+                }, {     -- set npc as hostage
+                    icon = "fas fa-handcuffs",
+                    label = "Make Hostage",
+                    action = function(entity)
+                        Suspect:toggleHostage(entity)
+                        SetNpcAsHostage(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isHostage(entity) then return false end
+                        return true
+                    end,
+                }, {     -- release npc as hostage
+                    icon = "fas fa-handcuffs",
+                    label = "Release Hostage",
+                    action = function(entity)
+                        Suspect:toggleHostage(entity)
+                        RemoveNpcAsHostage(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not Suspect:isHostage(entity) then return false end
+                        return true
+                    end,
+                }, {     -- set npc as surender
+                    icon = "fas fa-handcuffs",
+                    label = "Make Surender",
+                    action = function(entity)
+                        Suspect:toggleSurender(entity)
+                        SetNpcAsSurender(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                        if not Suspect:isCuffed(entity) then return false end
+                        if Suspect:isSurender(entity) then return false end
+                        return true
+                    end,
+                }, {     -- release npc as surender
+                    icon = "fas fa-handcuffs",
+                    label = "Release Surender",
+                    action = function(entity)
+                        Suspect:toggleSurender(entity)
+                        RemoveNpcAsSurender(entity)
+                    end,
+                    canInteract = function(entity)
+                        if not isLoggedIn then return false end
+                        if not IsPedHuman(entity) then return false end
+                        if IsPedAPlayer(entity) then return false end
+                        if IsPedDeadOrDying(entity) then return false end
+                        if not Suspect:isSurender(entity) then return false end
+                        return true
+                    end,
+                },
                 },
                 distance = 2.5
             })
@@ -575,201 +569,213 @@ local function LoadTarget()
                     end,
                     distance = 2.5
                 }, { -- UnCuff
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('uncuff'),
-                    onSelect = function(data)
-                        CuffEntity(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if Suspect:isEscorting(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        if isHandCuffing then return false end
-                        if isSearchingSuspect then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- Start Escort
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('start_escort'),
-                    onSelect = function(data)
-                        Suspect:setEscorting(data.entity, true)
-                        Wait(10)
-                        EscortEntity(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if Suspect:isEscorting(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        if isHandCuffing then return false end
-                        if isSearchingSuspect then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- Stop Escort
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('stop_escort'),
-                    onSelect = function(data)
-                        Suspect:setEscorting(data.entity, false)
-                        Wait(10)
-                        EscortEntity(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if not Suspect:isEscorting(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        if isHandCuffing then return false end
-                        if isSearchingSuspect then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- Search Suspect
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('search_suspect'),
-                    onSelect = function(data)
-                        SearchSuspect(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if Suspect:isEscorting(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        if isHandCuffing then return false end
-                        if isSearchingSuspect then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- Revive Suspect
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('revive_suspect'),
-                    onSelect = function(data)
-                        ReviveNpc(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if not IsPedDeadOrDying(data.entity) then return false end
-                        if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
-                        if not HasItem(config.RevieItem, 1) then return false end
-                        if isHandCuffing then return false end
-                        if isReviveNpc then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- put in jail
-                    icon = "fas fa-handcuffs",
-                    label = Lang:t('put_in_jail'),
-                    onSelect = function(data)
-                        Suspect:setInJail(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if not Suspect:isEscorting(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        local coords = GetEntityCoords(PlayerPedId())
-                        local jail_distance = GetDistance(coords, config.JailCoords)
-                        if jail_distance > 1.5 then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- set npc as hostage
-                    icon = "fas fa-handcuffs",
-                    label = "Take Hostage",
-                    onSelect = function(data)
-                        Suspect:toggleHostage(data.entity)
-                        SetNpcAsHostage(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
-                        if not Suspect:isCuffed(data.entity) then return false end
-                        if Suspect:isHostage(data.entity) then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- release npc as hostage
-                    icon = "fas fa-handcuffs",
-                    label = "Release Hostage",
-                    onSelect = function(data)
-                        Suspect:toggleHostage(data.entity)
-                        RemoveNpcAsHostage(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if not Suspect:isHostage(data.entity) then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- set npc as surender
-                    icon = "fas fa-handcuffs",
-                    label = "Make Surender",
-                    onSelect = function(data)
-                        Suspect:toggleSurender(entity)
-                        SetNpcAsSurender(entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(entity) then return false end
-                        if IsPedAPlayer(entity) then return false end
-                        if IsPedDeadOrDying(entity) then return false end
-                        if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
-                        if not Suspect:isCuffed(entity) then return false end
-                        if Suspect:isSurender(entity) then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                }, { -- release npc as surender
-                    icon = "fas fa-handcuffs",
-                    label = "Release Surender",
-                    onSelect = function(data)
-                        Suspect:toggleSurender(data.entity)
-                        RemoveNpcAsSurender(data.entity)
-                    end,
-                    canInteract = function(data)
-                        if not isLoggedIn then return false end
-                        if not IsPedHuman(data.entity) then return false end
-                        if IsPedAPlayer(data.entity) then return false end
-                        if IsPedDeadOrDying(data.entity) then return false end
-                        if not Suspect:isSurender(data.entity) then return false end
-                        return true
-                    end,
-                    distance = 2.5
-                },
+                icon = "fas fa-handcuffs",
+                label = Lang:t('uncuff'),
+                onSelect = function(data)
+                    CuffEntity(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if Suspect:isEscorting(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    if isHandCuffing then return false end
+                    if isSearchingSuspect then return false end
+                    if isReviveNpc then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- Start Escort
+                icon = "fas fa-handcuffs",
+                label = Lang:t('start_escort'),
+                onSelect = function(data)
+                    Suspect:setEscorting(data.entity, true)
+                    Wait(10)
+                    EscortEntity(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if Suspect:isEscorting(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    if isHandCuffing then return false end
+                    if isSearchingSuspect then return false end
+                    if isReviveNpc then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- Stop Escort
+                icon = "fas fa-handcuffs",
+                label = Lang:t('stop_escort'),
+                onSelect = function(data)
+                    Suspect:setEscorting(data.entity, false)
+                    Wait(10)
+                    EscortEntity(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if not Suspect:isEscorting(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    if isHandCuffing then return false end
+                    if isSearchingSuspect then return false end
+                    if isReviveNpc then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- Search Suspect
+                icon = "fas fa-handcuffs",
+                label = Lang:t('search_suspect'),
+                onSelect = function(data)
+                    SearchSuspect(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if Suspect:isEscorting(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    if isHandCuffing then return false end
+                    if isSearchingSuspect then return false end
+                    if isReviveNpc then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- Revive Suspect
+                icon = "fas fa-handcuffs",
+                label = Lang:t('revive_suspect'),
+                onSelect = function(data)
+                    ReviveNpc(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if not IsPedDeadOrDying(data.entity) then return false end
+                    if PlayerData ~= nil and PlayerData.job.name ~= 'ambulance' then return false end
+                    if not HasItem(config.RevieItem, 1) then return false end
+                    if isHandCuffing then return false end
+                    if isReviveNpc then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- put in jail
+                icon = "fas fa-handcuffs",
+                label = Lang:t('put_in_jail'),
+                onSelect = function(data)
+                    Suspect:setInJail(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if PlayerData ~= nil and PlayerData.job.name ~= 'police' then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if not Suspect:isEscorting(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    local coords = GetEntityCoords(PlayerPedId())
+                    local jail_distance = GetDistance(coords, config.JailCoords)
+                    if jail_distance > 1.5 then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- set npc as hostage
+                icon = "fas fa-handcuffs",
+                label = "Take Hostage",
+                onSelect = function(data)
+                    Suspect:toggleHostage(data.entity)
+                    SetNpcAsHostage(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                    if not Suspect:isCuffed(data.entity) then return false end
+                    if Suspect:isHostage(data.entity) then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- release npc as hostage
+                icon = "fas fa-handcuffs",
+                label = "Release Hostage",
+                onSelect = function(data)
+                    Suspect:toggleHostage(data.entity)
+                    RemoveNpcAsHostage(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if not Suspect:isHostage(data.entity) then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- set npc as surender
+                icon = "fas fa-handcuffs",
+                label = "Make Surender",
+                onSelect = function(data)
+                    Suspect:toggleSurender(entity)
+                    SetNpcAsSurender(entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(entity) then return false end
+                    if IsPedAPlayer(entity) then return false end
+                    if IsPedDeadOrDying(entity) then return false end
+                    if PlayerData ~= nil and PlayerData.job.name == 'police' then return false end
+                    if not Suspect:isCuffed(entity) then return false end
+                    if Suspect:isSurender(entity) then return false end
+                    return true
+                end,
+                distance = 2.5
+            }, {     -- release npc as surender
+                icon = "fas fa-handcuffs",
+                label = "Release Surender",
+                onSelect = function(data)
+                    Suspect:toggleSurender(data.entity)
+                    RemoveNpcAsSurender(data.entity)
+                end,
+                canInteract = function(data)
+                    if not isLoggedIn then return false end
+                    if not IsPedHuman(data.entity) then return false end
+                    if IsPedAPlayer(data.entity) then return false end
+                    if IsPedDeadOrDying(data.entity) then return false end
+                    if not Suspect:isSurender(data.entity) then return false end
+                    return true
+                end,
+                distance = 2.5
+            },
             })
         end
     end
+end
+
+local function LoadAnimationLibaries()
+    LoadDict(config.Animations.player.walk.dict)
+    LoadDict(config.Animations.player.search.dict)
+    LoadDict(config.Animations.player.revive.dict)
+    LoadDict(config.Animations.ped.idle.dict)
+    LoadDict(config.Animations.ped.sit.dict)
+    LoadDict(config.Animations.ped.walk.dict)
+    LoadDict(config.Animations.ped.run.dict)
+    LoadDict(config.Animations.ped.hostage.dict)
+    LoadDict(config.Animations.ped.surender.dict)
 end
 
 AddEventHandler('onResourceStop', function(resource)
@@ -808,7 +814,6 @@ if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~
     AddEventHandler(OnJobUpdate, function(job)
         PlayerData.job = job
     end)
-
 elseif GetResourceState("es_extended") == 'missing' and GetResourceState("qb-core") == 'missing' then
     AddEventHandler("playerSpawned", function(spawn)
         TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
@@ -825,6 +830,7 @@ RegisterNetEvent('mh-walkwhencuffed:client:onjoin', function(data)
     end
     config = data
     Wait(10)
+    LoadAnimationLibaries()
     LoadTarget()
 end)
 
@@ -848,87 +854,76 @@ end)
 
 -- cop/player VS Npc
 CreateThread(function()
-
     while true do
         local sleep = 1000
         if isLoggedIn then
-            LoadDict(config.Animations.player.walk.dict)
-            LoadDict(config.Animations.ped.idle.dict)
-            LoadDict(config.Animations.ped.walk.dict)
-            LoadDict(config.Animations.ped.run.dict)
-            LoadDict(config.Animations.ped.hostage.dict)
-            LoadDict(config.Animations.ped.surender.dict)
             for key, suspect in pairs(cuffedSuspects) do
                 if suspect.entity ~= nil and DoesEntityExist(suspect.entity) then
-                    local distance = GetDistance(GetEntityCoords(suspect.entity), GetEntityCoords(PlayerPedId()))
-                    if distance < 100 then
-                        sleep = 0
-                        if suspect.isCuffed then
-                            if suspect.isEscorting then
-                                if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
-                                if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
-                                    AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
-                                elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
-                                    if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
-                                        TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
-                                    end
-                                end
-                                if IsPedWalking(PlayerPedId()) then
-                                    StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
-                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
-                                        TaskPlayAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                        SetPedKeepTask(suspect.entity, true)
-                                    end
-                                elseif IsPedSprinting(PlayerPedId()) then
-                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 3) then
-                                        TaskPlayAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                        SetPedKeepTask(suspect.entity, true)
-                                    end
-                                else
-                                    StopAnimTask(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
-                                    StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
-                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
-                                        TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                        SetPedKeepTask(suspect.entity, true)
-                                    end
-                                end
-                            elseif not suspect.isEscorting then
-                                if suspect.isInVehicle then
-                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
-                                        TaskPlayAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                        SetPedKeepTask(suspect.entity, true)
-                                    end
-                                else
-                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
-                                        TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                        SetPedKeepTask(suspect.entity, true)
-                                    end
+                    sleep = 0
+                    if suspect.isCuffed then
+                        if suspect.isEscorting then
+                            if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
+                            if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
+                                AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
+                            elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
+                                if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+                                    TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
                                 end
                             end
-                            if suspect.isHostage then
-                                suspect.isCuffed = false
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                            if IsPedWalking(PlayerPedId()) then
+                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
-                            elseif not suspect.isHostage then
-                                if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-                                    StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
-                                end
-                            end
-
-                            if suspect.isSurender then
-                                suspect.isCuffed = false
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                            elseif IsPedSprinting(PlayerPedId()) then
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 8.0, -8, -1, 1, 0.0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
-                            elseif not suspect.isHostage then
-                                if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-                                    StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
+                            else
+                                StopAnimTask(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
+                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                    SetPedKeepTask(suspect.entity, true)
                                 end
                             end
+                        elseif not suspect.isEscorting then
+                            if suspect.isInVehicle then
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                    SetPedKeepTask(suspect.entity, true)
+                                end
+                            else
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                    SetPedKeepTask(suspect.entity, true)
+                                end
+                            end
+                        end
+                        if suspect.isHostage then
+                            suspect.isCuffed = false
+                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                                SetPedKeepTask(suspect.entity, true)
+                            end
+                        elseif not suspect.isHostage then
+                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
+                            end
+                        end
 
+                        if suspect.isSurender then
+                            suspect.isCuffed = false
+                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                                SetPedKeepTask(suspect.entity, true)
+                            end
+                        elseif not suspect.isHostage then
+                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
+                            end
                         end
                     end
                 end

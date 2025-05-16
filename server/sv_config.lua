@@ -11,12 +11,19 @@ SV_Config.RevieItem = "firstaid"
 SV_Config.JailItems = {'cokebaggy', 'crack_baggy', 'xtcbaggy', 'meth'}
 SV_Config.JailCoords = vector3(441.0086, -981.1292, 30.6896)
 
-
 SV_Config.Animations = {
     player = {
         walk = {
             dict = "amb@world_human_drinking@coffee@female@base",
             name = "base",
+        },
+        search = {
+            dict = "random@shop_robbery",
+            name = "robbery_action_b",
+        },
+        revive = {
+            dict = "mini@cpr@char_a@cpr_str",
+            name = "cpr_pumpchest",
         },
     },
     ped = {
@@ -43,6 +50,6 @@ SV_Config.Animations = {
         surender = {
             dict = "random@arrests@busted",
             name = "idle_a"
-        }
+        },
     }
 }
