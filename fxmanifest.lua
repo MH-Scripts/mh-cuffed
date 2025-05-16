@@ -18,10 +18,15 @@ shared_scripts {
 }
 
 client_scripts {
+    'core/framework/client.lua',
+    'core/functions/client/suspect.lua',
+    'core/functions/client/cop.lua',
     'client/main.lua',
 }
 
 server_scripts {
+    'core/framework/server.lua',
+    'core/functions/server/data.lua',
     'server/sv_config.lua',
     'server/main.lua',
     'server/update.lua'
