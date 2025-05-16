@@ -92,7 +92,7 @@ function Suspect:setInVehicle(entity, vehicle)
             suspect.isEscorting = false
             suspect.isInVehicle = true
             suspect.vehicle = vehicle
-            SyncData()
+            TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             break
         end
     end
@@ -104,7 +104,7 @@ function Suspect:takeOutVehicle(entity, vehicle)
             suspect.isEscorting = true
             suspect.isInVehicle = false
             suspect.vehicle = nil
-            SyncData()
+            TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             break
         end
     end

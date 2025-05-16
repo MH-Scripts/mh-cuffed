@@ -10,6 +10,7 @@ local isSearchingVehicle = false
 local isReviveNpc = false
 local suspectEntity = nil -- current entity you are working with at the moment.
 
+
 local function Notify(message, type, length)
     if GetResourceState("ox_lib") ~= 'missing' then
         lib.notify({title = "MH Walk When Cuffed", description = message, type = type})
@@ -212,13 +213,14 @@ local function SetNpcAsHostage(entity)
     if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
         StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     end
-
     LoadDict(config.Animations.ped.hostage.dict)
-    FreezeEntityPosition(entity, true)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
         TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
     end
+    FreezeEntityPosition(entity, true)
+    SetBlockingOfNonTemporaryEvents(entity, true)
     SetPedKeepTask(entity, true)
+    SetPedFleeAttributes(entity, 0, false)
     suspectEntity = nil
 end
 
@@ -239,13 +241,14 @@ local function SetNpcAsSurender(entity)
     if IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
         StopAnimTask(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, -8.0)
     end
-
     LoadDict(config.Animations.ped.hostage.dict)
-    FreezeEntityPosition(entity, true)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
         TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
     end
+    FreezeEntityPosition(entity, true)
+    SetBlockingOfNonTemporaryEvents(entity, true)
     SetPedKeepTask(entity, true)
+    SetPedFleeAttributes(entity, 0, false)
     suspectEntity = nil
 end
 
@@ -846,6 +849,7 @@ end)
 
 -- cop/player VS Npc
 CreateThread(function()
+
     while true do
         local sleep = 1000
         if isLoggedIn then
@@ -857,73 +861,74 @@ CreateThread(function()
             LoadDict(config.Animations.ped.surender.dict)
             for key, suspect in pairs(cuffedSuspects) do
                 if suspect.entity ~= nil and DoesEntityExist(suspect.entity) then
-                    sleep = 0
-                    if suspect.isCuffed then
-                        if suspect.isEscorting then
-                            if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
-                            if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
-                                AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
-                            elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
-                                if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
-                                    TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
+                    local distance = GetDistance(GetEntityCoords(suspect.entity), GetEntityCoords(PlayerPedId()))
+                    if distance < 100 then
+                        sleep = 0
+                        if suspect.isCuffed then
+                            if suspect.isEscorting then
+                                if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
+                                if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
+                                    AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
+                                elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
+                                    if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 3) then
+                                        TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
+                                    end
+                                end
+                                if IsPedWalking(PlayerPedId()) then
+                                    StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
+                                        TaskPlayAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                        SetPedKeepTask(suspect.entity, true)
+                                    end
+                                elseif IsPedSprinting(PlayerPedId()) then
+                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 3) then
+                                        TaskPlayAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                        SetPedKeepTask(suspect.entity, true)
+                                    end
+                                else
+                                    StopAnimTask(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
+                                    StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
+                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                        TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                        SetPedKeepTask(suspect.entity, true)
+                                    end
+                                end
+                            elseif not suspect.isEscorting then
+                                if suspect.isInVehicle then
+                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
+                                        TaskPlayAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                        SetPedKeepTask(suspect.entity, true)
+                                    end
+                                else
+                                    if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
+                                        TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                                        SetPedKeepTask(suspect.entity, true)
+                                    end
                                 end
                             end
-                            if IsPedWalking(PlayerPedId()) then
-                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 8.0, -8, -1, 1, 0.0, false, false, false)
+                            if suspect.isHostage then
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
                                     SetPedKeepTask(suspect.entity, true)
                                 end
-                            elseif IsPedSprinting(PlayerPedId()) then
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                    SetPedKeepTask(suspect.entity, true)
-                                end
-                            else
-                                StopAnimTask(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, -8.0)
-                                StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                    SetPedKeepTask(suspect.entity, true)
+                            elseif not suspect.isHostage then
+                                if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
+                                    StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
                                 end
                             end
-                        elseif not suspect.isEscorting then
-                            if suspect.isInVehicle then
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                    SetPedKeepTask(suspect.entity, true)
-                                end
-                            else
-                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 3) then
-                                    TaskPlayAnim(suspect.entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
-                                    SetPedKeepTask(suspect.entity, true)
-                                end
-                            end
-                        end
-                        if suspect.isHostage then
-                            suspect.isCuffed = false
-                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-                                TaskPlayAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
-                                SetPedKeepTask(suspect.entity, true)
-                            end
-                        elseif not suspect.isHostage then
-                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-                                StopAnimTask(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
-                            end
-                        end
 
-                        if suspect.isSurender then
-                            suspect.isCuffed = false
-                            if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-                                TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
-                                SetPedKeepTask(suspect.entity, true)
+                            if suspect.isSurender then
+                                if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                    TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
+                                    SetPedKeepTask(suspect.entity, true)
+                                end
+                            elseif not suspect.isHostage then
+                                if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
+                                    StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
+                                end
                             end
-                        elseif not suspect.isHostage then
-                            if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-                                StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
-                            end
-                        end
 
+                        end
                     end
                 end
             end
@@ -931,4 +936,3 @@ CreateThread(function()
         Wait(sleep)
     end
 end)
-
