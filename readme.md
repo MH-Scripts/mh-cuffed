@@ -30,7 +30,7 @@
 - so when the cop is walking you are also automaticly going to walk animation.
 - you can arrest npc peds and searsh them.
 
-# Add code in `qb-polivejob` (client side)
+# Add code in `qb-policejob` (client side)
 - in `qb-policejob/client/main.lua` at the bottom of the file.
 ```lua
 local function GetIsHandcuffed() return isHandcuffed end
