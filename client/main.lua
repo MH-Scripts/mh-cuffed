@@ -28,7 +28,7 @@ local function LoadDict(dict)
 end
 
 local function HasItem(item, amount)
-    return exports['qb-inventory']:HasItem(config.RevieItem, 1)
+    return config.Inventory.HasItem(item, amount)
 end
 
 local function GetDistance(pos1, pos2)
@@ -154,8 +154,7 @@ local function SearchVehicle(entity)
     searchVehicles[entity] = true
     isSearchingVehicle = true
     LoadDict(config.Animations.player.search.dict)
-    TaskPlayAnim(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, 3.0, 3.0, -1,
-        16, 0, false, false, false)
+    TaskPlayAnim(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, 3.0, 3.0, -1, 16, 0, false, false, false)
     Wait(3500)
     StopAnimTask(PlayerPedId(), config.Animations.player.search.dict, config.Animations.player.search.name, -8.0)
     isSearchingVehicle = false
@@ -206,8 +205,7 @@ local function SetNpcAsHostage(entity)
     end
     LoadDict(config.Animations.ped.hostage.dict)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
-        TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0,
-            false, false, false)
+        TaskPlayAnim(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 8.0, -8.0, -1, 1, 0, false, false, false)
     end
     FreezeEntityPosition(entity, true)
     SetBlockingOfNonTemporaryEvents(entity, true)
@@ -219,8 +217,7 @@ end
 local function RemoveNpcAsHostage(entity)
     LoadDict(config.Animations.ped.idle.dict)
     StopAnimTask(entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, -8.0)
-    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false,
-        false, false)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
     FreezeEntityPosition(entity, false)
@@ -236,8 +233,7 @@ local function SetNpcAsSurender(entity)
     end
     LoadDict(config.Animations.ped.hostage.dict)
     if not IsEntityPlayingAnim(PlayerPedId(), config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
-        TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1,
-            0, false, false, false)
+        TaskPlayAnim(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
     end
     FreezeEntityPosition(entity, true)
     SetBlockingOfNonTemporaryEvents(entity, true)
@@ -248,8 +244,7 @@ end
 
 local function RemoveNpcAsSurender(entity)
     StopAnimTask(entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
-    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false,
-        false, false)
+    TaskPlayAnim(entity, config.Animations.ped.idle.dict, config.Animations.ped.idle.name, 8.0, -8, -1, 1, 0.0, false, false, false)
     SetPedKeepTask(entity, true)
     CuffEntity(entity)
     FreezeEntityPosition(entity, false)
@@ -257,6 +252,7 @@ local function RemoveNpcAsSurender(entity)
 end
 
 local function LoadTarget()
+
     for k, v in pairs(config.Vehicles) do
         if GetResourceState("qb-target") ~= 'missing' then
             exports['qb-target']:AddTargetModel(v.model, {
@@ -764,6 +760,7 @@ local function LoadTarget()
             })
         end
     end
+
 end
 
 local function LoadAnimationLibaries()
@@ -797,6 +794,7 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~= 'missing' then
+
     RegisterNetEvent(OnPlayerLoaded, function()
         TriggerServerEvent('mh-cuffed:server:onjoin')
     end)
@@ -814,11 +812,14 @@ if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~
     AddEventHandler(OnJobUpdate, function(job)
         PlayerData.job = job
     end)
+
 elseif GetResourceState("es_extended") == 'missing' and GetResourceState("qb-core") == 'missing' then
+
     AddEventHandler("playerSpawned", function(spawn)
         TriggerServerEvent('mh-cuffed:server:onjoin')
         PlayerData = nil
     end)
+
 end
 
 RegisterNetEvent('mh-cuffed:client:onjoin', function(data)

@@ -15,7 +15,7 @@ end
 
 function Suspect:new(entity)
     if not Suspect:exsist(entity) then
-        cuffedSuspects[#cuffedSuspects + 1] = {entity = entity, isCuffed = true, isEscorting = true, isHostage = false}
+        cuffedSuspects[#cuffedSuspects + 1] = {entity = entity, isCuffed = true, isEscorting = true, isHostage = false, isSurender = false}
         TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
     end
 end
@@ -23,7 +23,7 @@ end
 function Suspect:delete(entity)
     if Suspect:exsist(entity) then
         for key, suspect in pairs(cuffedSuspects) do
-            if suspect == entity then
+            if suspect.entity == entity then
                 suspect = nil
                 TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             end

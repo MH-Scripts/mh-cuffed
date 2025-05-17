@@ -8,11 +8,23 @@ SV_Config.Vehicles = Vehicles
 
 SV_Config.ResetTimer = 30 -- 30 * 1000
 
+SV_Config.JailCoords = vector3(441.0086, -981.1292, 30.6896)
+-- Make sure you have the items in your system.
+SV_Config.JailItems = {'cokebaggy', 'crack_baggy', 'xtcbaggy', 'meth'}
 SV_Config.HandcuffItem = "weapon_handcuffs"
 SV_Config.RevieItem = "firstaid"
 
-SV_Config.JailItems = {'cokebaggy', 'crack_baggy', 'xtcbaggy', 'meth'}
-SV_Config.JailCoords = vector3(441.0086, -981.1292, 30.6896)
+SV_Config.UseItems = true -- True when you use a inventory.
+SV_Config.Inventory = {
+    HasItem = function(item, amount)
+        if SV_Config.UseItems then
+            -- You can add your own inventory export here.
+            return exports["qb-inventory"]:HasItem(item, amount)
+        else
+            return true
+        end
+    end
+}
 
 SV_Config.Animations = {
     player = {
