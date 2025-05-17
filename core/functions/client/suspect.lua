@@ -132,7 +132,9 @@ CreateThread(function()
                     sleep = 0
                     if suspect.isCuffed then
                         if suspect.isEscorting then
+
                             if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
+                            
                             if not IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) then
                                 AttachEntityToEntity(suspect.entity, PlayerPedId(), 11816, 0.38, 0.4, 0.0, 0.0, 0.0, 0.0, false, false, true, true, 2, true)
                             elseif IsEntityAttachedToEntity(suspect.entity, PlayerPedId()) and not suspect.isInVehicle then
@@ -140,6 +142,7 @@ CreateThread(function()
                                     TaskPlayAnim(PlayerPedId(), config.Animations.player.walk.dict, config.Animations.player.walk.name, 8.0, 8.0, -1, 50, 0, false, false, false)
                                 end
                             end
+
                             if IsPedWalking(PlayerPedId()) then
                                 StopAnimTask(suspect.entity, config.Animations.ped.run.dict, config.Animations.ped.run.name, -8.0)
                                 if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.walk.dict, config.Animations.ped.walk.name, 3) then
@@ -159,6 +162,7 @@ CreateThread(function()
                                     SetPedKeepTask(suspect.entity, true)
                                 end
                             end
+
                         elseif not suspect.isEscorting then
                             if suspect.isInVehicle then
                                 if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.sit.dict, config.Animations.ped.sit.name, 3) then
@@ -172,6 +176,8 @@ CreateThread(function()
                                 end
                             end
                         end
+
+
                         if suspect.isHostage then
                             suspect.isCuffed = false
                             if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.hostage.dict, config.Animations.ped.hostage.name, 3) then
@@ -184,6 +190,7 @@ CreateThread(function()
                             end
                         end
 
+
                         if suspect.isSurender then
                             suspect.isCuffed = false
                             if not IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
@@ -195,6 +202,7 @@ CreateThread(function()
                                 StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
                             end
                         end
+
                     end
                 end
             end

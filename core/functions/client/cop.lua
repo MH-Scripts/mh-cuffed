@@ -54,7 +54,7 @@ CreateThread(function()
                 LoadDict("amb@world_human_drinking@coffee@female@base")
                 -- Movements for cop
                 if IsEntityAttachedToEntity(suspect, cop) then
-                    DisableControlAction(0, 21)
+                    if config.DisableRunningWhenCuffed then DisableControlAction(0, 21) end
                     if not IsEntityPlayingAnim(cop, 'amb@world_human_drinking@coffee@female@base', 'base', 3) then
                         TaskPlayAnim(cop, 'amb@world_human_drinking@coffee@female@base', "base", 8.0, 8.0, -1, 50, 0, false, false, false)
                         SetPedKeepTask(cop, true)
