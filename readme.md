@@ -26,9 +26,14 @@
 - [Subscribe](https://www.youtube.com/@MaDHouSe79) 
 
 # MH Walk When Cuffed (QB/ESX)
+
+# For Players
 - When you get cuffed by a cop you don't walk or move, with this script you also walk with the cop while cuffed.
 - so when the cop is walking you are also automaticly going to walk animation.
-- you can arrest npc peds and searsh them.
+
+# For Npc's
+- You can Cuff/UnCuff, Search, Escort, Hostage, Surender or place Npc's in your vehicle for a cop chase.
+- When a npc is cuffed the npc walk/run with you while you move around.
 
 # Add code in `qb-policejob` (client side)
 - in `qb-policejob/client/main.lua` at the bottom of the file.
