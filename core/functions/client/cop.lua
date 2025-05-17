@@ -25,7 +25,14 @@ CreateThread(function()
                                 TaskPlayAnim(suspect, 'mp_arresting', 'walk', 8.0, -8, -1, 1, 0.0, false, false, false)
                                 SetPedKeepTask(suspect, true)
                             end
-                        elseif not IsPedWalking(cop) then
+                        elseif IsPedSprinting(cop) then
+                            if not IsEntityPlayingAnim(suspect, 'mp_arresting', 'run', 3) then
+                                TaskPlayAnim(suspect, 'mp_arresting', 'run', 8.0, -8, -1, 1, 0.0, false, false, false)
+                                SetPedKeepTask(suspect, true)
+                            end
+                        else
+                            StopAnimTask(suspect, 'mp_arresting', 'walk', -8.0)
+                            StopAnimTask(suspect, 'mp_arresting', 'run', -8.0)
                             if not IsEntityPlayingAnim(suspect, 'mp_arresting', 'idle', 3) then
                                 TaskPlayAnim(suspect, 'mp_arresting', 'idle', 8.0, -8, -1, 1, 0.0, false, false, false)
                                 SetPedKeepTask(suspect, true)
