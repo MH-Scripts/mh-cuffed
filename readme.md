@@ -25,7 +25,7 @@
 # My Youtube Channel
 - [Subscribe](https://www.youtube.com/@MaDHouSe79) 
 
-# MH Walk When Cuffed (QB/ESX)
+# MH Walk When Cuffed
 
 # For Players
 - When you get cuffed by a cop you don't walk or move, with this script you also walk with the cop while cuffed.
