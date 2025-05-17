@@ -190,7 +190,7 @@ CreateThread(function()
                                 TaskPlayAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 8.0, -8.0, -1, 1, 0, false, false, false)
                                 SetPedKeepTask(suspect.entity, true)
                             end
-                        elseif not suspect.isHostage then
+                        elseif not suspect.isSurender then
                             if IsEntityPlayingAnim(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, 3) then
                                 StopAnimTask(suspect.entity, config.Animations.ped.surender.dict, config.Animations.ped.surender.name, -8.0)
                             end
