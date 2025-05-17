@@ -35,6 +35,10 @@
 - You can Cuff/UnCuff, Search, Escort, Hostage, Surender or place Npc's in your vehicle for a cop chase.
 - When a npc is cuffed the npc walk/run with you while you move around.
 
+# Dependencies
+- [ox_lib](https://github.com/overextended/ox_lib/releases)
+- [qb-target](https://github.com/qbcore-framework/qb-target) or [ox_target](https://github.com/overextended/ox_target)
+  
 # Add code in `qb-policejob` (client side)
 - in `qb-policejob/client/main.lua` at the bottom of the file.
 ```lua
