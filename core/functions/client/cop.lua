@@ -1,7 +1,10 @@
+--[[ ===================================================== ]] --
+--[[                MH Cuffed by MaDHouSe79                ]] --
+--[[ ===================================================== ]] --
 cop = nil
 suspect = nil
 
-RegisterNetEvent('mh-walkwhencuffed:client:SetData', function(data)
+RegisterNetEvent('mh-cuffed:client:SetData', function(data)
     if data.cop ~= nil and data.cop == PlayerPedId() then cop = PlayerPedId() end
     if data.suspect ~= nil and data.suspect == PlayerPedId() then suspect = PlayerPedId() end
 end)

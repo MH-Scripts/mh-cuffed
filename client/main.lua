@@ -1,5 +1,5 @@
 --[[ ===================================================== ]] --
---[[           MH Walk When Cuffed by MaDHouSe79           ]] --
+--[[                MH Cuffed by MaDHouSe79                ]] --
 --[[ ===================================================== ]] --
 local config = nil
 local suspectEntity = nil -- current entity you are working with at the moment.
@@ -792,13 +792,13 @@ end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-        TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
+        TriggerServerEvent('mh-cuffed:server:onjoin')
     end
 end)
 
 if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~= 'missing' then
     RegisterNetEvent(OnPlayerLoaded, function()
-        TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
+        TriggerServerEvent('mh-cuffed:server:onjoin')
     end)
 
     RegisterNetEvent(OnPlayerUnload, function()
@@ -816,12 +816,12 @@ if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~
     end)
 elseif GetResourceState("es_extended") == 'missing' and GetResourceState("qb-core") == 'missing' then
     AddEventHandler("playerSpawned", function(spawn)
-        TriggerServerEvent('mh-walkwhencuffed:server:onjoin')
+        TriggerServerEvent('mh-cuffed:server:onjoin')
         PlayerData = nil
     end)
 end
 
-RegisterNetEvent('mh-walkwhencuffed:client:onjoin', function(data)
+RegisterNetEvent('mh-cuffed:client:onjoin', function(data)
     isLoggedIn, cop, suspect = true, nil, nil
     if GetResourceState("es_extended") ~= 'missing' or GetResourceState("qb-core") ~= 'missing' then
         PlayerData = GetPlayerData()
@@ -834,7 +834,7 @@ RegisterNetEvent('mh-walkwhencuffed:client:onjoin', function(data)
     LoadTarget()
 end)
 
-RegisterNetEvent('mh-walkwhencuffed:client:syncData', function(data)
+RegisterNetEvent('mh-cuffed:client:syncData', function(data)
     searchSuspects = data.searchSuspects
     searchVehicles = data.searchVehicles
     cuffedSuspects = data.cuffedSuspects

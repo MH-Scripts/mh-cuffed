@@ -1,5 +1,5 @@
 --[[ ===================================================== ]] --
---[[           MH Walk When Cuffed by MaDHouSe79           ]] --
+--[[                MH Cuffed by MaDHouSe79                ]] --
 --[[ ===================================================== ]] --
-RegisterNetEvent('mh-walkwhencuffed:server:onjoin', function() TriggerClientEvent('mh-walkwhencuffed:client:onjoin', source, SV_Config) end)
-RegisterNetEvent('mh-walkwhencuffed:server:syncData', function(data) TriggerClientEvent('mh-walkwhencuffed:client:syncData', -1, data) end)
+RegisterNetEvent('mh-cuffed:server:onjoin', function() TriggerClientEvent('mh-cuffed:client:onjoin', source, SV_Config) end)
+RegisterNetEvent('mh-cuffed:server:syncData', function(data) TriggerClientEvent('mh-cuffed:client:syncData', -1, data) end)

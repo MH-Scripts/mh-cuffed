@@ -1,3 +1,6 @@
+--[[ ===================================================== ]] --
+--[[                MH Cuffed by MaDHouSe79                ]] --
+--[[ ===================================================== ]] --
 Suspect = {}
 Suspect.__index = Suspect
 
@@ -13,7 +16,7 @@ end
 function Suspect:new(entity)
     if not Suspect:exsist(entity) then
         cuffedSuspects[#cuffedSuspects + 1] = {entity = entity, isCuffed = true, isEscorting = true, isHostage = false}
-        TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
+        TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
     end
 end
 
@@ -22,7 +25,7 @@ function Suspect:delete(entity)
         for key, suspect in pairs(cuffedSuspects) do
             if suspect == entity then
                 suspect = nil
-                TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
+                TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             end
         end
     end
@@ -93,7 +96,7 @@ function Suspect:setInVehicle(entity, vehicle)
             suspect.isInVehicle = true
             suspect.vehicle = vehicle
             suspectEntity = nil
-            TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
+            TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             break
         end
     end
@@ -106,7 +109,7 @@ function Suspect:takeOutVehicle(entity, vehicle)
             suspect.isInVehicle = false
             suspect.vehicle = nil
             suspectEntity = entity
-            TriggerServerEvent('mh-walkwhencuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
+            TriggerServerEvent('mh-cuffed:server:syncData', {searchSuspects = searchSuspects, searchVehicles = searchVehicles, cuffedSuspects = cuffedSuspects})
             break
         end
     end

@@ -1,10 +1,10 @@
 --[[ ===================================================== ]] --
---[[           MH Walk When Cuffed by MaDHouSe79           ]] --
+--[[                MH Cuffed by MaDHouSe79                ]] --
 --[[ ===================================================== ]] --
 fx_version 'cerulean'
 game 'gta5'
 
-description 'MH - Walk When Cuffed'
+description 'MH - Cuffed'
 author 'MaDHouSe79'
 version '1.0.0'
 
