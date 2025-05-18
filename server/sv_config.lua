@@ -16,16 +16,8 @@ SV_Config.HandcuffItem = "weapon_handcuffs"
 SV_Config.RevieItem = "firstaid"
 
 SV_Config.UseItems = false -- True when you use a inventory.
-SV_Config.Inventory = {
-    HasItem = function(item, amount)
-        if SV_Config.UseItems then
-            -- You can add your own inventory export here.
-            return exports["qb-inventory"]:HasItem(item, amount)
-        else
-            return true
-        end
-    end
-}
+SV_Config.Inventory = "qb-inventory" -- Use your own inventory and make sure you have an HasItem(item, amount) export
+
 
 SV_Config.Animations = {
     player = {
