@@ -14,7 +14,7 @@ SV_Config.JailItems = {'cokebaggy', 'crack_baggy', 'xtcbaggy', 'meth'}
 SV_Config.HandcuffItem = "weapon_handcuffs"
 SV_Config.RevieItem = "firstaid"
 
-SV_Config.UseItems = true -- True when you use a inventory.
+SV_Config.UseItems = false -- True when you use a inventory.
 SV_Config.Inventory = {
     HasItem = function(item, amount)
         if SV_Config.UseItems then
