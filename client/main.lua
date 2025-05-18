@@ -33,6 +33,14 @@ local function GetDistance(pos1, pos2)
     end
 end
 
+local function HasItem(item, amount)
+    if config.UseItems then
+        return exports[config.Inventory]:HasItem(item, amount)
+    else
+        return true
+    end
+end
+
 local function CuffEntity(entity)
     if isHandCuffing then return end
     isHandCuffing = true
