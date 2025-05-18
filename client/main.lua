@@ -27,10 +27,6 @@ local function LoadDict(dict)
     end
 end
 
-local function HasItem(item, amount)
-    return config.Inventory.HasItem(item, amount)
-end
-
 local function GetDistance(pos1, pos2)
     if pos1 ~= nil and pos2 ~= nil then
         return #(vector3(pos1.x, pos1.y, pos1.z) - vector3(pos2.x, pos2.y, pos2.z))
