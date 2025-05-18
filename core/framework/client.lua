@@ -22,3 +22,7 @@ elseif GetResourceState("qb-core") ~= 'missing' then
     function GetJob() return PlayerData.job end
     RegisterNetEvent('QBCore:Player:SetPlayerData', function(data) PlayerData = data end)
 end
+
+function HasItem(item, amount)
+    return config.Inventory.HasItem(item, amount)
+end
